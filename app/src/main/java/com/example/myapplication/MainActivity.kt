@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -48,28 +49,46 @@ class MainActivity : AppCompatActivity() {
         val filename = File(pathToFile).name
         val filenameWithoutExtension = filename.substringBeforeLast(".")
 
-        songTextView.text = "[$filenameWithoutExtension]";
+        songTextView.text = "[ $filenameWithoutExtension ]";
 
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(pathToFile)
         val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: null
 
-        artistTextView.text = if (artist != null) "[$artist]" else ""
+        artistTextView.text = if (artist != null) "[ $artist ]" else ""
 
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setDataSource(pathToFile)
         mediaPlayer?.prepareAsync()
+
         mediaPlayer?.setOnErrorListener { _, what, extra ->
             Log.e("MediaPlayer", "Error ($what,$extra)")
             false
         }
+
 }
 
     fun toggleAudio(view: View) {
+        val handler = Handler()
+
         if (isPlaying) {
             stopAudio()
+
         } else {
             playAudio()
+
+            mediaPlayer?.start()
+            seekBar.max = mediaPlayer?.duration ?: 100
+
+
+            val updateSeekBarTask = object : Runnable {
+                override fun run() {
+                    seekBar.progress = mediaPlayer?.currentPosition!!
+                    handler.postDelayed(this, 100) // Update progress every 100 milliseconds
+                }
+            }
+            handler.postDelayed(updateSeekBarTask, 100) // Start the periodic task
+
         }
     }
     private fun playAudio() {

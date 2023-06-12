@@ -68,7 +68,12 @@
             android:layout_width="289dp"
             android:layout_height="wrap_content"
             android:padding="20dp"
-            android:progressTint="@color/white" />
+            android:progressTint="@color/pink"
+            android:progressBackgroundTint="@color/grey"
+            android:thumbTint="@color/pink"
+            android:thumb="@drawable/iconmonstr_favorite_7"
+            android:thumbOffset="8dp"
+            />
 
         <TextView
             android:id="@+id/length"

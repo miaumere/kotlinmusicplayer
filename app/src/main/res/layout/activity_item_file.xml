@@ -2,36 +2,23 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:background="@color/theme_color1"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/iconmonstr_folder_open_thin"
+        android:paddingRight="16dp"
+        />
 
     <TextView
         android:id="@+id/fileNameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:textAppearanceMedium"
-        android:text="test"
+        android:textColor="@color/grey"
         />
-
 </LinearLayout>
-
-<!--<androidx.constraintlayout.widget.ConstraintLayout -->
-<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    tools:context=".ItemFile">-->
-<!--    -->
-<!--    <LinearLayout-->
-<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/fileNameTextView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:textAppearance="?android:textAppearanceMedium" />-->
-
-<!--    </LinearLayout>-->
-
-<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

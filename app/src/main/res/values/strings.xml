@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">💗 Mp3 player 💗</string>
-    <string name="song_title">🎵 Song title:</string>
-    <string name="artist_name">🎶 Artist name:</string>
+    <string name="app_name">🎧 music player</string>
+    <string name="song_title">[song title]</string>
+    <string name="artist_name">[artist]</string>
 </resources>

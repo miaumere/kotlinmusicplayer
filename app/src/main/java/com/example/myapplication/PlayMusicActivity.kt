@@ -1,14 +1,16 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.View
-import android.view.animation.*
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -16,11 +18,11 @@ import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 
 class PlayMusicActivity : AppCompatActivity() {
-
-    var pathToFile: String = ""
+    private var pathToFile: String = ""
 
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
+
     private lateinit var playButton: ImageView
     private lateinit var songTextView: TextView
     private lateinit var artistTextView: TextView
@@ -32,10 +34,9 @@ class PlayMusicActivity : AppCompatActivity() {
     private var maxDuration = 0L
     private var currentSeekBarPosition = 0
 
+    private val animationSet = AnimationSet(true)
 
-    val animationSet = AnimationSet(true)
-
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.music_player)
@@ -70,7 +71,7 @@ class PlayMusicActivity : AppCompatActivity() {
 
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(pathToFile)
-        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: null
+        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
 
         artistTextView.text = if (artist != null) "[ $artist ]" else ""
 
@@ -146,7 +147,6 @@ class PlayMusicActivity : AppCompatActivity() {
             playButton.setImageResource(R.drawable.iconmonstr_pause_thin)
         }
     }
-
     private fun stopAudio() {
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.pause()
@@ -157,5 +157,6 @@ class PlayMusicActivity : AppCompatActivity() {
             playButton.setImageResource(R.drawable.iconmonstr_play_thin)
         }
     }
+
 
 }

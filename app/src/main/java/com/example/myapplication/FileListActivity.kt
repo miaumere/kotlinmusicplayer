@@ -1,8 +1,10 @@
 package com.example.myapplication
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +16,8 @@ class FileListActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var fileListAdapter: FileListAdapter
 
+    private var currentPath: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_list)
@@ -21,7 +25,6 @@ class FileListActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val files = retrieveFilesAndFolders()
         fileListAdapter = FileListAdapter(retrieveFilesAndFolders()) { clickedFile ->
             if (clickedFile.isFolder) {
                 openFolderContents(clickedFile)
@@ -31,6 +34,8 @@ class FileListActivity : AppCompatActivity() {
         }
         recyclerView.adapter = fileListAdapter
     }
+
+
 
     private fun retrieveFilesAndFolders(): List<FileModel> {
         val files = ArrayList<FileModel>()
@@ -44,18 +49,21 @@ class FileListActivity : AppCompatActivity() {
                 val filePath = file.absolutePath
                 val isFolder = file.isDirectory
 
-                files.add(FileModel(fileName, filePath, isFolder))
+                if (!isHidden(file)) {
+                    files.add(FileModel(fileName, filePath, isFolder))
+                }
             }
         }
 
         return files
     }
-
     private fun openFolderContents(folder: FileModel) {
-        val folderContents = retrieveFolderContents(folder.path)
+        navigateToDirectory(folder.path)
+    }
 
-        fileListAdapter.files = folderContents
-        fileListAdapter.notifyDataSetChanged()
+    private fun isHidden(file: File): Boolean {
+        // Check if the file is hidden
+        return file.isHidden
     }
 
     private fun openFile(file: FileModel) {
@@ -83,6 +91,33 @@ class FileListActivity : AppCompatActivity() {
         }
 
         return folderContents
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun navigateToDirectory(directoryPath: String) {
+        currentPath = directoryPath
+        Log.d("FileListActivity", "Navigated to directory: $currentPath")
+        val folderContents = retrieveFolderContents(directoryPath)
+        fileListAdapter.files = folderContents
+        fileListAdapter.notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun navigateBack() {
+        val parentDirectory = File(currentPath).parent
+        if (parentDirectory != null) {
+            currentPath = parentDirectory
+            Log.d("FileListActivity", "Navigated back to directory: $currentPath")
+            val folderContents = retrieveFolderContents(parentDirectory)
+            fileListAdapter.files = folderContents
+            fileListAdapter.notifyDataSetChanged()
+        }
+    }
+    override fun onBackPressed() {
+        if (currentPath == Environment.getExternalStorageDirectory().absolutePath) {
+        } else {
+            navigateBack()
+        }
     }
 
 }

@@ -38,8 +38,6 @@ class FileListActivity : AppCompatActivity() {
         recyclerView.adapter = fileListAdapter
     }
 
-
-
     private fun retrieveFilesAndFolders(): List<FileModel> {
         val files = ArrayList<FileModel>()
 
@@ -62,11 +60,6 @@ class FileListActivity : AppCompatActivity() {
     }
     private fun openFolderContents(folder: FileModel) {
         navigateToDirectory(folder.path)
-    }
-
-    private fun isHidden(file: File): Boolean {
-        // Check if the file is hidden
-        return file.isHidden
     }
 
     private fun openFile(file: FileModel) {
@@ -92,19 +85,12 @@ class FileListActivity : AppCompatActivity() {
                 }
             }
             val emptyFolderTextView = findViewById<TextView>(R.id.emptyFolderTextView)
-            Log.d("files",files.toString())
-
             if (files.isEmpty()) {
-                Log.d("empty files", "")
                 emptyFolderTextView.visibility = View.VISIBLE
             } else {
                 emptyFolderTextView.visibility = View.GONE
             }
-
         }
-
-
-
         return folderContents
     }
 

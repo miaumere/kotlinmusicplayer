@@ -90,6 +90,7 @@
         android:gravity="center">
 
         <ImageView
+            android:id="@+id/randomIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/iconmonstr_random_thin"
@@ -97,6 +98,7 @@
             />
 
         <ImageView
+            android:id="@+id/previousIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/iconmonstr_previous_thin"
@@ -113,6 +115,7 @@
             />
 
         <ImageView
+            android:id="@+id/nextIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/iconmonstr_next_thin"
@@ -120,6 +123,7 @@
             />
 
         <ImageView
+            android:id="@+id/loopIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/iconmonstr_loop_thin"

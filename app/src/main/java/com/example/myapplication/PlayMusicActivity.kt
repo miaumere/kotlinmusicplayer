@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.enums.MusicExtension
 import java.io.File
 
 class PlayMusicActivity : AppCompatActivity() {
@@ -24,7 +25,12 @@ class PlayMusicActivity : AppCompatActivity() {
     private var isPlaying = false
     private var isMusicEnded = false
 
+    private lateinit var randomIconButton: ImageView
+    private lateinit var previousIconButton: ImageView
     private lateinit var playButton: ImageView
+    private lateinit var nextIconButton: ImageView
+    private lateinit var loopIconButton: ImageView
+
     private lateinit var songTextView: TextView
     private lateinit var artistTextView: TextView
     private lateinit var seekBar: SeekBar
@@ -36,6 +42,8 @@ class PlayMusicActivity : AppCompatActivity() {
     private var currentSeekBarPosition = 0
 
     private val animationSet = AnimationSet(true)
+
+    private var musicFileCount = 0
 
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +59,17 @@ class PlayMusicActivity : AppCompatActivity() {
         albumImageView = findViewById(R.id.albumImageView)
         lengthTextView = findViewById(R.id.length)
         durationTextView = findViewById(R.id.duration)
+        nextIconButton = findViewById(R.id.nextIcon)
+        previousIconButton = findViewById(R.id.previousIcon)
+        randomIconButton = findViewById(R.id.randomIcon)
+        loopIconButton = findViewById(R.id.loopIcon)
+
+
+        val musicFiles = retrieveMusicFiles()
+        musicFileCount = musicFiles.size
+
+        updateImageViewState()
+
 
         maxDuration = mediaPlayer?.duration?.toLong() ?: 0L
         val maxMinutes = (maxDuration / 1000) / 60
@@ -124,9 +143,6 @@ class PlayMusicActivity : AppCompatActivity() {
                 }
             }
             handler.postDelayed(updateSeekBarTask, 100)
-
-
-
         }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -175,6 +191,68 @@ class PlayMusicActivity : AppCompatActivity() {
             playButton.setImageResource(R.drawable.iconmonstr_play_thin)
         }
     }
+
+    private fun retrieveMusicFiles(): List<File> {
+        val musicFiles = mutableListOf<File>()
+
+        val directory = File(pathToFile).parentFile
+
+        if (directory.exists() && directory.isDirectory) {
+            val files = directory.listFiles()
+            if (files != null) {
+                for (file in files) {
+                    val fileName = file.name
+                    val isFolder = file.isDirectory
+
+                    if (!isFolder && MusicExtension.isMusicFile(fileName)) {
+                        musicFiles.add(file)
+                    }
+                }
+            }
+        }
+
+        return musicFiles
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun updateImageViewState() {
+        val nextIcon = resources.getDrawable(R.drawable.iconmonstr_next_thin)
+        val previousIcon = resources.getDrawable(R.drawable.iconmonstr_previous_thin)
+        val randomIcon = resources.getDrawable(R.drawable.iconmonstr_random_thin)
+
+        if (musicFileCount <= 1) {
+            nextIcon.setTint(resources.getColor(R.color.grey))
+            nextIconButton.setImageDrawable(nextIcon)
+            nextIconButton.isEnabled = false
+            nextIconButton.isClickable = false
+
+            previousIcon.setTint(resources.getColor(R.color.grey))
+            previousIconButton.setImageDrawable(previousIcon)
+            previousIconButton.isEnabled = false
+            previousIconButton.isClickable = false
+
+            randomIcon.setTint(resources.getColor(R.color.grey))
+            randomIconButton.setImageDrawable(randomIcon)
+            randomIconButton.isEnabled = false
+            randomIconButton.isClickable = false
+        } else {
+            nextIcon.setTint(resources.getColor(R.color.white))
+            nextIconButton.setImageDrawable(nextIcon)
+            nextIconButton.isEnabled = true
+            nextIconButton.isClickable = true
+
+            previousIcon.setTint(resources.getColor(R.color.white))
+            previousIconButton.setImageDrawable(previousIcon)
+            previousIconButton.isEnabled = true
+            previousIconButton.isClickable = true
+
+            randomIcon.setTint(resources.getColor(R.color.white))
+            randomIconButton.setImageDrawable(randomIcon)
+            randomIconButton.isEnabled = true
+            randomIconButton.isClickable = true
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

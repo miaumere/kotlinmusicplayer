@@ -108,7 +108,7 @@ class PlayMusicActivity : AppCompatActivity() {
             mediaPlayer?.seekTo(currentSeekBarPosition)
             val updateSeekBarTask = object : Runnable {
                 override fun run() {
-                    if (mediaPlayer?.isPlaying == true) {
+                    if (mediaPlayer != null && mediaPlayer?.isPlaying == true) {
                         seekBar.progress = mediaPlayer?.currentPosition ?: 0
                         currentSeekBarPosition = mediaPlayer?.currentPosition ?: 0
 
@@ -179,5 +179,6 @@ class PlayMusicActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer?.release()
+        mediaPlayer = null
     }
 }

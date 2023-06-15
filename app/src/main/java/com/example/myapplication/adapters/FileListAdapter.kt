@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapplication.R
 import com.example.myapplication.adapters.models.FileModel
@@ -23,9 +24,19 @@ class FileListAdapter(files: List<FileModel>, private val onItemClick: (FileMode
 
     inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val fileNameTextView: TextView = itemView.findViewById(R.id.fileNameTextView)
-
+        private val musicIconImageView: ImageView = itemView.findViewById(R.id.musicIconImageView)
+        private val folderIconImageView: ImageView = itemView.findViewById(R.id.folderIconImageView)
         fun bind(file: FileModel) {
             fileNameTextView.text = file.name
+
+            if (!file.isFolder) {
+                musicIconImageView.visibility = View.VISIBLE
+                folderIconImageView.visibility = View.GONE
+            } else {
+                musicIconImageView.visibility = View.GONE
+                folderIconImageView.visibility = View.VISIBLE
+
+            }
 
             itemView.setOnClickListener {
                 onItemClick.invoke(file)

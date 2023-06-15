@@ -8,11 +8,20 @@
     >
 
     <ImageView
+        android:id="@+id/folderIconImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/iconmonstr_folder_open_thin"
         android:paddingRight="16dp"
-        />
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/musicIconImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/iconmonstr_disc_5"
+        android:paddingRight="16dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/fileNameTextView"

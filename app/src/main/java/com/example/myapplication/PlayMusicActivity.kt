@@ -22,6 +22,7 @@ class PlayMusicActivity : AppCompatActivity() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
+    private var isMusicEnded = false
 
     private lateinit var playButton: ImageView
     private lateinit var songTextView: TextView
@@ -135,16 +136,33 @@ class PlayMusicActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 val progress = seekBar?.progress ?: 0
-                mediaPlayer?.seekTo(progress)
+                val duration = mediaPlayer?.duration ?: 0
+
+                if (progress <= duration) {
+                    mediaPlayer?.seekTo(progress)
+
+                    if (isMusicEnded) {
+                        playAudio()
+                    }
+                }
             }
         })
     }
     private fun playAudio() {
-        if (mediaPlayer?.isPlaying == false) {
+        if (mediaPlayer?.isPlaying == false || isMusicEnded) {
             mediaPlayer?.start()
             isPlaying = true
             albumImageView.startAnimation(animationSet)
             playButton.setImageResource(R.drawable.iconmonstr_pause_thin)
+            isMusicEnded = false
+
+            mediaPlayer?.setOnCompletionListener {
+                albumImageView.clearAnimation()
+                isPlaying = false
+                playButton.setImageResource(R.drawable.iconmonstr_play_thin)
+                isMusicEnded = true
+
+            }
         }
     }
     private fun stopAudio() {
@@ -158,5 +176,8 @@ class PlayMusicActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+    }
 }

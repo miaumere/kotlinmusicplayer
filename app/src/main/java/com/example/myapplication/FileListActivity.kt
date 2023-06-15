@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -89,7 +91,19 @@ class FileListActivity : AppCompatActivity() {
                     folderContents.add(FileModel(fileName, filePath, isFolder))
                 }
             }
+            val emptyFolderTextView = findViewById<TextView>(R.id.emptyFolderTextView)
+            Log.d("files",files.toString())
+
+            if (files.isEmpty()) {
+                Log.d("empty files", "")
+                emptyFolderTextView.visibility = View.VISIBLE
+            } else {
+                emptyFolderTextView.visibility = View.GONE
+            }
+
         }
+
+
 
         return folderContents
     }

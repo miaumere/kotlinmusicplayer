@@ -7,7 +7,8 @@
     android:background="@color/theme_color1"
     tools:context=".FileListActivity">
 
-    <LinearLayout
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -17,7 +18,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/emptyFolderTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/empty_folder"
+            android:textColor="@color/grey"
+            android:visibility="gone"
+            />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

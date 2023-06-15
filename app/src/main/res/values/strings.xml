@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">🎧 music player</string>
-    <string name="song_title">[song title]</string>
-    <string name="artist_name">[artist]</string>
+    <string name="song_title">[ song title ]</string>
+    <string name="artist_name">[ artist ]</string>
+    <string name="empty_folder">[ 🚫 this folder is empty! ]</string>
+
 </resources>

@@ -14,10 +14,6 @@
     android:gravity="center"
 >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/songTextView"
@@ -26,17 +22,16 @@
             android:paddingBottom="16dp"
             android:text="@string/song_title"
             android:textColor="@color/white"
-            android:textSize="30sp"
+            android:textAppearance="?android:textAppearanceLarge"
             android:textStyle="bold" />
 
-    </LinearLayout>
 
 
     <TextView
         android:id="@+id/artistTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textAppearance="?android:textAppearanceMedium"
         android:text="@string/artist_name"
         android:textColor="@color/grey"/>
 

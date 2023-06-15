@@ -5,7 +5,10 @@ enum class MusicExtension(val extension: String) {
     WAV(".wav"),
     FLAC(".flac"),
     AAC(".aac"),
-    OGG(".ogg");
+    OGG(".ogg"),
+    MPEG(".mpeg"),
+    M4A(".m4a"),
+    MP4(".mp4");
 
     companion object {
         fun isMusicFile(fileName: String): Boolean {

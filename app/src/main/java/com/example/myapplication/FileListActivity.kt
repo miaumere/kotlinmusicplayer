@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.adapters.FileListAdapter
 import com.example.myapplication.adapters.models.FileModel
+import com.example.myapplication.enums.MusicExtension
 import java.io.File
 
 class FileListActivity : AppCompatActivity() {
@@ -49,7 +50,7 @@ class FileListActivity : AppCompatActivity() {
                 val filePath = file.absolutePath
                 val isFolder = file.isDirectory
 
-                if (!isHidden(file)) {
+                if (isFolder || MusicExtension.isMusicFile(fileName)) {
                     files.add(FileModel(fileName, filePath, isFolder))
                 }
             }
@@ -96,7 +97,6 @@ class FileListActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun navigateToDirectory(directoryPath: String) {
         currentPath = directoryPath
-        Log.d("FileListActivity", "Navigated to directory: $currentPath")
         val folderContents = retrieveFolderContents(directoryPath)
         fileListAdapter.files = folderContents
         fileListAdapter.notifyDataSetChanged()
@@ -107,7 +107,6 @@ class FileListActivity : AppCompatActivity() {
         val parentDirectory = File(currentPath).parent
         if (parentDirectory != null) {
             currentPath = parentDirectory
-            Log.d("FileListActivity", "Navigated back to directory: $currentPath")
             val folderContents = retrieveFolderContents(parentDirectory)
             fileListAdapter.files = folderContents
             fileListAdapter.notifyDataSetChanged()

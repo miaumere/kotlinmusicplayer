@@ -9,12 +9,32 @@ import com.example.myapplication.R
 import com.example.myapplication.adapters.models.FileModel
 import androidx.recyclerview.widget.RecyclerView
 
-class FileListAdapter(private val files: List<FileModel>) :
+class FileListAdapter(files: List<FileModel>, private val onItemClick: (FileModel) -> Unit) :
     RecyclerView.Adapter<FileListAdapter.FileViewHolder>() {
 
+    private val mutableFiles: MutableList<FileModel> = files.toMutableList()
+
+    var files: List<FileModel>
+        get() = mutableFiles
+        set(value) {
+            mutableFiles.clear()
+            mutableFiles.addAll(value)
+        }
+
+    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val fileNameTextView: TextView = itemView.findViewById(R.id.fileNameTextView)
+
+        fun bind(file: FileModel) {
+            fileNameTextView.text = file.name
+
+            itemView.setOnClickListener {
+                onItemClick.invoke(file)
+            }
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.activity_item_file, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.activity_item_file, parent, false)
         return FileViewHolder(view)
     }
 
@@ -25,24 +45,5 @@ class FileListAdapter(private val files: List<FileModel>) :
 
     override fun getItemCount(): Int {
         return files.size
-    }
-
-    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(file: FileModel) {
-            // Bind data to the views in the item layout
-            val fileNameTextView = itemView.findViewById<TextView>(R.id.fileNameTextView)
-            fileNameTextView.text = file.name
-
-            // Set click listener for the item
-            itemView.setOnClickListener {
-                if (file.isFolder) {
-                    // Handle folder click
-                    // Navigate to the folder
-                } else {
-                    // Handle file click
-                    // Play the file
-                }
-            }
-        }
     }
 }

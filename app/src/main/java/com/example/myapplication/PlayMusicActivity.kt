@@ -17,7 +17,7 @@ import java.io.File
 
 class PlayMusicActivity : AppCompatActivity() {
 
-    var pathToFile: String = Environment.getExternalStorageDirectory().path + "/Music/" + "don't be gone too long (solo ver).m4a"
+    var pathToFile: String = ""
 
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
@@ -40,6 +40,7 @@ class PlayMusicActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.music_player)
 
+        this.pathToFile = intent.getStringExtra("filePath") ?: ""
 
         playButton = findViewById(R.id.playButton)
         songTextView = findViewById(R.id.songTextView)

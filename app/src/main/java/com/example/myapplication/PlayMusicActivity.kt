@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -69,7 +68,6 @@ class PlayMusicActivity : AppCompatActivity() {
         randomIconButton = findViewById(R.id.randomIcon)
         loopIconButton = findViewById(R.id.loopIcon)
 
-
         val musicFiles = retrieveMusicFiles()
         musicFileCount = musicFiles.size
 
@@ -86,7 +84,6 @@ class PlayMusicActivity : AppCompatActivity() {
         scaleAnimation.repeatCount = Animation.INFINITE
         scaleAnimation.repeatMode = Animation.REVERSE
         animationSet.addAnimation(scaleAnimation)
-
 
         val filename = File(pathToFile).name
         val filenameWithoutExtension = filename.substringBeforeLast(".")
@@ -118,8 +115,31 @@ class PlayMusicActivity : AppCompatActivity() {
             false
         }
 
-}
+        updateUIForCurrentSong()
+    }
 
+
+    private fun updateUIForCurrentSong() {
+        val currentSongFile = musicFiles[currentPlayingPosition]
+
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(currentSongFile.path)
+
+        val filenameWithoutExtension = currentSongFile.nameWithoutExtension
+        songTextView.text = "[ $filenameWithoutExtension ]"
+
+        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+        artistTextView.text = if (artist != null) "[ $artist ]" else ""
+
+        val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        val duration = durationString?.toLongOrNull() ?: 0
+        val minutes = (duration / 1000) / 60
+        val seconds = (duration / 1000) % 60
+        val durationText = String.format("%d:%02d", minutes, seconds)
+        lengthTextView.text = durationText
+
+        retriever.release()
+    }
 
 
     fun toggleAudio(view: View) {
@@ -166,6 +186,8 @@ class PlayMusicActivity : AppCompatActivity() {
                     if (isMusicEnded) {
                         playAudio()
                     }
+                } else {
+                    Log.e("MediaPlayer", "Attempted to seek beyond the end of the file")
                 }
             }
         })
@@ -222,6 +244,7 @@ class PlayMusicActivity : AppCompatActivity() {
     }
 
 
+
     private fun onRightButtonClick(view: View) {
         currentPlayingPosition++
 
@@ -230,34 +253,48 @@ class PlayMusicActivity : AppCompatActivity() {
         }
 
         val nextSongFile = musicFiles[currentPlayingPosition]
-
         if (nextSongFile.exists()) {
             mediaPlayer?.reset()
             mediaPlayer?.setDataSource(nextSongFile.path)
+            mediaPlayer?.setOnPreparedListener { mp ->
+                mp.start()
+                isPlaying = true
+                albumImageView.startAnimation(animationSet)
+                playButton.setImageResource(R.drawable.iconmonstr_pause_thin)
+                isMusicEnded = false
+
+                updateUIForCurrentSong()
+                seekBar.max = mediaPlayer?.duration ?: 0
+
+                val handler = Handler()
+                val updateSeekBarTask = object : Runnable {
+                    override fun run() {
+                        if (mediaPlayer != null && mediaPlayer?.isPlaying == true) {
+                            seekBar.progress = mediaPlayer?.currentPosition ?: 0
+
+                            val minutes = (seekBar.progress / 1000) / 60
+                            val seconds = (seekBar.progress / 1000) % 60
+                            val currentDurationText = String.format("%d:%02d", minutes, seconds)
+
+                            durationTextView.text = currentDurationText
+
+                            handler.postDelayed(this, 100)
+                        }
+                    }
+                }
+                handler.postDelayed(updateSeekBarTask, 100)
+            }
+            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+                Log.e("MediaPlayer", "Error ($what, $extra)")
+                false
+            }
             mediaPlayer?.prepareAsync()
-
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(nextSongFile.path)
-            val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val duration = durationString?.toLongOrNull() ?: 0
-            val minutes = (duration / 1000) / 60
-            val seconds = (duration / 1000) % 60
-            val durationText = String.format("%d:%02d", minutes, seconds)
-            lengthTextView.text = durationText
-
-            songTextView.text = nextSongFile.name
-
-            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            artistTextView.text = if (artist != null) "[ $artist ]" else ""
-
-            retriever.release()
-
-            stopAudio()
-            playAudio()
+            pathToFile = nextSongFile.absolutePath
         } else {
-            // Handle the case when the nextSongFile doesn't exist
         }
     }
+
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun updateImageViewState() {
         val nextIcon = resources.getDrawable(R.drawable.iconmonstr_next_thin)

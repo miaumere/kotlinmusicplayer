@@ -53,6 +53,8 @@ class PlayMusicActivity : AppCompatActivity() {
 
         this.pathToFile = intent.getStringExtra("filePath") ?: ""
 
+        Log.d("path to file: ", pathToFile)
+
         playButton = findViewById(R.id.playButton)
         songTextView = findViewById(R.id.songTextView)
         artistTextView = findViewById(R.id.artistTextView)
@@ -73,22 +75,12 @@ class PlayMusicActivity : AppCompatActivity() {
 
         updateImageViewState()
 
-        maxDuration = mediaPlayer?.duration?.toLong() ?: 0L
-        val maxMinutes = (maxDuration / 1000) / 60
-        val maxSeconds = (maxDuration / 1000) % 60
-        val maxDurationText = String.format("%d:%02d", maxMinutes, maxSeconds)
-        lengthTextView.text = maxDurationText
-
         val scaleAnimation = ScaleAnimation(1f, 1.2f, 1f, 1.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
         scaleAnimation.duration = 1000
         scaleAnimation.repeatCount = Animation.INFINITE
         scaleAnimation.repeatMode = Animation.REVERSE
         animationSet.addAnimation(scaleAnimation)
 
-        val filename = File(pathToFile).name
-        val filenameWithoutExtension = filename.substringBeforeLast(".")
-
-        songTextView.text = "[ $filenameWithoutExtension ]";
 
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(pathToFile)
@@ -116,6 +108,7 @@ class PlayMusicActivity : AppCompatActivity() {
         }
 
         updateUIForCurrentSong()
+
     }
 
 
@@ -125,18 +118,18 @@ class PlayMusicActivity : AppCompatActivity() {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(currentSongFile.path)
 
+        // Update max duration
+        maxDuration = mediaPlayer?.duration?.toLong() ?: 0L
+        val maxMinutes = (maxDuration / 1000) / 60
+        val maxSeconds = (maxDuration / 1000) % 60
+        val maxDurationText = String.format("%d:%02d", maxMinutes, maxSeconds)
+        lengthTextView.text = maxDurationText
+
         val filenameWithoutExtension = currentSongFile.nameWithoutExtension
         songTextView.text = "[ $filenameWithoutExtension ]"
 
         val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
         artistTextView.text = if (artist != null) "[ $artist ]" else ""
-
-        val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        val duration = durationString?.toLongOrNull() ?: 0
-        val minutes = (duration / 1000) / 60
-        val seconds = (duration / 1000) % 60
-        val durationText = String.format("%d:%02d", minutes, seconds)
-        lengthTextView.text = durationText
 
         retriever.release()
     }
@@ -262,6 +255,8 @@ class PlayMusicActivity : AppCompatActivity() {
                 albumImageView.startAnimation(animationSet)
                 playButton.setImageResource(R.drawable.iconmonstr_pause_thin)
                 isMusicEnded = false
+
+                pathToFile = nextSongFile.path
 
                 updateUIForCurrentSong()
                 seekBar.max = mediaPlayer?.duration ?: 0

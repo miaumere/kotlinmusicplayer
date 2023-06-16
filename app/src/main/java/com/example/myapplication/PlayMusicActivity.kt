@@ -39,11 +39,13 @@ class PlayMusicActivity : AppCompatActivity() {
     private lateinit var durationTextView: TextView
 
     private var maxDuration = 0L
+    private var currentPlayingPosition: Int = 0
     private var currentSeekBarPosition = 0
 
     private val animationSet = AnimationSet(true)
 
     private var musicFileCount = 0
+    private lateinit var musicFiles: List<File>
 
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +61,10 @@ class PlayMusicActivity : AppCompatActivity() {
         albumImageView = findViewById(R.id.albumImageView)
         lengthTextView = findViewById(R.id.length)
         durationTextView = findViewById(R.id.duration)
+
         nextIconButton = findViewById(R.id.nextIcon)
+        nextIconButton.setOnClickListener { onRightButtonClick(it) }
+
         previousIconButton = findViewById(R.id.previousIcon)
         randomIconButton = findViewById(R.id.randomIcon)
         loopIconButton = findViewById(R.id.loopIcon)
@@ -69,7 +74,6 @@ class PlayMusicActivity : AppCompatActivity() {
         musicFileCount = musicFiles.size
 
         updateImageViewState()
-
 
         maxDuration = mediaPlayer?.duration?.toLong() ?: 0L
         val maxMinutes = (maxDuration / 1000) / 60
@@ -115,6 +119,8 @@ class PlayMusicActivity : AppCompatActivity() {
         }
 
 }
+
+
 
     fun toggleAudio(view: View) {
         val handler = Handler()
@@ -211,9 +217,47 @@ class PlayMusicActivity : AppCompatActivity() {
             }
         }
 
+        this.musicFiles = musicFiles
         return musicFiles
     }
 
+
+    private fun onRightButtonClick(view: View) {
+        currentPlayingPosition++
+
+        if (currentPlayingPosition >= musicFiles.size) {
+            currentPlayingPosition = 0
+        }
+
+        val nextSongFile = musicFiles[currentPlayingPosition]
+
+        if (nextSongFile.exists()) {
+            mediaPlayer?.reset()
+            mediaPlayer?.setDataSource(nextSongFile.path)
+            mediaPlayer?.prepareAsync()
+
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(nextSongFile.path)
+            val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            val duration = durationString?.toLongOrNull() ?: 0
+            val minutes = (duration / 1000) / 60
+            val seconds = (duration / 1000) % 60
+            val durationText = String.format("%d:%02d", minutes, seconds)
+            lengthTextView.text = durationText
+
+            songTextView.text = nextSongFile.name
+
+            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            artistTextView.text = if (artist != null) "[ $artist ]" else ""
+
+            retriever.release()
+
+            stopAudio()
+            playAudio()
+        } else {
+            // Handle the case when the nextSongFile doesn't exist
+        }
+    }
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun updateImageViewState() {
         val nextIcon = resources.getDrawable(R.drawable.iconmonstr_next_thin)

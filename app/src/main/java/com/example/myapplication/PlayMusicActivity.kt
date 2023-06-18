@@ -85,12 +85,8 @@ class PlayMusicActivity : AppCompatActivity() {
         scaleAnimation.repeatMode = Animation.REVERSE
         animationSet.addAnimation(scaleAnimation)
 
-
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(pathToFile)
-        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-
-        artistTextView.text = if (artist != null) "[ $artist ]" else ""
 
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setDataSource(pathToFile)
@@ -115,8 +111,8 @@ class PlayMusicActivity : AppCompatActivity() {
     }
 
     private fun updateUIForCurrentSong() {
-        val currentSongFile = musicFiles[currentPlayingPosition]
-
+        val currentSongFile = File(pathToFile)
+        
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(currentSongFile.path)
 
@@ -134,7 +130,6 @@ class PlayMusicActivity : AppCompatActivity() {
 
         retriever.release()
     }
-
 
     fun toggleAudio(view: View) {
         val handler = Handler()

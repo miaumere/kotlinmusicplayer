@@ -68,7 +68,11 @@ class PlayMusicActivity : AppCompatActivity() {
         previousIconButton.setOnClickListener {onLeftButtonClick(it)}
 
         randomIconButton = findViewById(R.id.randomIcon)
+
         loopIconButton = findViewById(R.id.loopIcon)
+        loopIconButton.setOnClickListener {
+            toggleLooping()
+        }
 
         val musicFiles = retrieveMusicFiles()
         musicFileCount = musicFiles.size
@@ -150,11 +154,20 @@ class PlayMusicActivity : AppCompatActivity() {
                         val minutes = (currentSeekBarPosition / 1000) / 60
                         val seconds = (currentSeekBarPosition / 1000) % 60
                         val currentDurationText = String.format("%d:%02d", minutes, seconds)
-
-                        durationTextView.text = currentDurationText;
+                        durationTextView.text = currentDurationText
 
                         handler.postDelayed(this, 100)
+                    } else if (mediaPlayer != null && mediaPlayer?.isLooping == true) {
+                        // Handle looping when the music has ended
+                        seekBar.progress = 0
+                        currentSeekBarPosition = 0
 
+                        val minutes = (currentSeekBarPosition / 1000) / 60
+                        val seconds = (currentSeekBarPosition / 1000) % 60
+                        val currentDurationText = String.format("%d:%02d", minutes, seconds)
+                        durationTextView.text = currentDurationText
+
+                        handler.postDelayed(this, 100)
                     }
                 }
             }
@@ -284,8 +297,6 @@ class PlayMusicActivity : AppCompatActivity() {
         } else {
         }
     }
-
-
     private fun onLeftButtonClick(view: View) {
         currentPlayingPosition--
 
@@ -337,7 +348,27 @@ class PlayMusicActivity : AppCompatActivity() {
         }
     }
 
+    private fun toggleLooping() {
+        val isLooping = mediaPlayer?.isLooping ?: false
 
+        if (isLooping) {
+            mediaPlayer?.isLooping = false
+            val loopIcon = resources.getDrawable(R.drawable.iconmonstr_loop_thin)
+            loopIcon.setTint(resources.getColor(R.color.grey))
+            loopIconButton.setImageDrawable(loopIcon)
+
+        } else {
+            mediaPlayer?.isLooping = true
+            val loopIcon = resources.getDrawable(R.drawable.iconmonstr_loop_thin)
+            loopIcon.setTint(resources.getColor(R.color.white))
+            loopIconButton.setImageDrawable(loopIcon)
+
+            if (isMusicEnded) {
+                isMusicEnded = false
+                playAudio()
+            }
+        }
+    }
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun updateImageViewState() {
         val nextIcon = resources.getDrawable(R.drawable.iconmonstr_next_thin)

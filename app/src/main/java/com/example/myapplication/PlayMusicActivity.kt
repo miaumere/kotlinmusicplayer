@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.enums.MusicExtension
 import java.io.File
+import kotlin.random.Random
 
 class PlayMusicActivity : AppCompatActivity() {
     private var pathToFile: String = ""
@@ -23,6 +24,7 @@ class PlayMusicActivity : AppCompatActivity() {
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
     private var isMusicEnded = false
+    private var isShuffleEnabled = false
 
     private lateinit var randomIconButton: ImageView
     private lateinit var previousIconButton: ImageView
@@ -68,7 +70,7 @@ class PlayMusicActivity : AppCompatActivity() {
         previousIconButton.setOnClickListener {onLeftButtonClick(it)}
 
         randomIconButton = findViewById(R.id.randomIcon)
-
+        randomIconButton.setOnClickListener {toggleShuffle()}
         loopIconButton = findViewById(R.id.loopIcon)
         loopIconButton.setOnClickListener {
             toggleLooping()
@@ -218,6 +220,15 @@ class PlayMusicActivity : AppCompatActivity() {
         }
     }
 
+    private fun toggleShuffle() {
+        isShuffleEnabled = !isShuffleEnabled
+        updateImageViewState()
+
+        if (isShuffleEnabled) {
+            musicFiles = musicFiles.shuffled()
+        }
+    }
+
     private fun retrieveMusicFiles(): List<File> {
         val musicFiles = mutableListOf<File>()
 
@@ -236,19 +247,30 @@ class PlayMusicActivity : AppCompatActivity() {
                 }
             }
         }
-
         this.musicFiles = musicFiles
         return musicFiles
     }
 
+    private fun generateRandomSongIndex(): Int {
+        val excludeIndex = currentPlayingPosition
+        var randomIndex = Random.nextInt(musicFiles.size)
+
+        while (randomIndex == excludeIndex) {
+            randomIndex = Random.nextInt(musicFiles.size)
+        }
+        return randomIndex
+    }
 
     private fun onRightButtonClick(view: View) {
-        currentPlayingPosition++
+        if (!isShuffleEnabled) {
+            currentPlayingPosition++
 
-        if (currentPlayingPosition >= musicFiles.size) {
-            currentPlayingPosition = 0
+            if (currentPlayingPosition >= musicFiles.size) {
+                currentPlayingPosition = 0
+            }
+        } else {
+            currentPlayingPosition = generateRandomSongIndex()
         }
-
         val nextSongFile = musicFiles[currentPlayingPosition]
         if (nextSongFile.exists()) {
             mediaPlayer?.reset()
@@ -283,7 +305,7 @@ class PlayMusicActivity : AppCompatActivity() {
                 }
                 handler.postDelayed(updateSeekBarTask, 100)
             }
-            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+            mediaPlayer?.setOnErrorListener { _, what, extra ->
                 Log.e("MediaPlayer", "Error ($what, $extra)")
                 false
             }
@@ -370,6 +392,16 @@ class PlayMusicActivity : AppCompatActivity() {
         val previousIcon = resources.getDrawable(R.drawable.iconmonstr_previous_thin)
         val randomIcon = resources.getDrawable(R.drawable.iconmonstr_random_thin)
 
+       if (isShuffleEnabled) {
+            randomIcon.setTint(resources.getColor(R.color.white))
+            randomIconButton.setImageDrawable(randomIcon)
+
+        } else {
+            randomIcon.setTint(resources.getColor(R.color.grey))
+            randomIconButton.setImageDrawable(randomIcon)
+        }
+
+
         if (musicFileCount <= 1) {
             nextIcon.setTint(resources.getColor(R.color.grey))
             nextIconButton.setImageDrawable(nextIcon)
@@ -381,10 +413,7 @@ class PlayMusicActivity : AppCompatActivity() {
             previousIconButton.isEnabled = false
             previousIconButton.isClickable = false
 
-            randomIcon.setTint(resources.getColor(R.color.grey))
-            randomIconButton.setImageDrawable(randomIcon)
-            randomIconButton.isEnabled = false
-            randomIconButton.isClickable = false
+
         } else {
             nextIcon.setTint(resources.getColor(R.color.white))
             nextIconButton.setImageDrawable(nextIcon)
@@ -395,11 +424,6 @@ class PlayMusicActivity : AppCompatActivity() {
             previousIconButton.setImageDrawable(previousIcon)
             previousIconButton.isEnabled = true
             previousIconButton.isClickable = true
-
-            randomIcon.setTint(resources.getColor(R.color.white))
-            randomIconButton.setImageDrawable(randomIcon)
-            randomIconButton.isEnabled = true
-            randomIconButton.isClickable = true
         }
     }
 

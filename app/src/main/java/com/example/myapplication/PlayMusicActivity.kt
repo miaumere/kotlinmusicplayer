@@ -53,8 +53,6 @@ class PlayMusicActivity : AppCompatActivity() {
 
         this.pathToFile = intent.getStringExtra("filePath") ?: ""
 
-        Log.d("path to file: ", pathToFile)
-
         playButton = findViewById(R.id.playButton)
         songTextView = findViewById(R.id.songTextView)
         artistTextView = findViewById(R.id.artistTextView)
@@ -67,6 +65,8 @@ class PlayMusicActivity : AppCompatActivity() {
         nextIconButton.setOnClickListener { onRightButtonClick(it) }
 
         previousIconButton = findViewById(R.id.previousIcon)
+        previousIconButton.setOnClickListener {onLeftButtonClick(it)}
+
         randomIconButton = findViewById(R.id.randomIcon)
         loopIconButton = findViewById(R.id.loopIcon)
 
@@ -108,9 +108,7 @@ class PlayMusicActivity : AppCompatActivity() {
         }
 
         updateUIForCurrentSong()
-
     }
-
 
     private fun updateUIForCurrentSong() {
         val currentSongFile = musicFiles[currentPlayingPosition]
@@ -118,7 +116,6 @@ class PlayMusicActivity : AppCompatActivity() {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(currentSongFile.path)
 
-        // Update max duration
         maxDuration = mediaPlayer?.duration?.toLong() ?: 0L
         val maxMinutes = (maxDuration / 1000) / 60
         val maxSeconds = (maxDuration / 1000) % 60
@@ -237,7 +234,6 @@ class PlayMusicActivity : AppCompatActivity() {
     }
 
 
-
     private fun onRightButtonClick(view: View) {
         currentPlayingPosition++
 
@@ -290,6 +286,58 @@ class PlayMusicActivity : AppCompatActivity() {
     }
 
 
+    private fun onLeftButtonClick(view: View) {
+        currentPlayingPosition--
+
+        if (currentPlayingPosition < 0) {
+            currentPlayingPosition = musicFiles.size - 1
+        }
+
+        val previousSongFile = musicFiles[currentPlayingPosition]
+        if (previousSongFile.exists()) {
+            mediaPlayer?.reset()
+            mediaPlayer?.setDataSource(previousSongFile.path)
+            mediaPlayer?.setOnPreparedListener { mp ->
+                mp.start()
+                isPlaying = true
+                albumImageView.startAnimation(animationSet)
+                playButton.setImageResource(R.drawable.iconmonstr_pause_thin)
+                isMusicEnded = false
+
+                pathToFile = previousSongFile.path
+
+                updateUIForCurrentSong()
+                seekBar.max = mediaPlayer?.duration ?: 0
+
+                val handler = Handler()
+                val updateSeekBarTask = object : Runnable {
+                    override fun run() {
+                        if (mediaPlayer != null && mediaPlayer?.isPlaying == true) {
+                            seekBar.progress = mediaPlayer?.currentPosition ?: 0
+
+                            val minutes = (seekBar.progress / 1000) / 60
+                            val seconds = (seekBar.progress / 1000) % 60
+                            val currentDurationText = String.format("%d:%02d", minutes, seconds)
+
+                            durationTextView.text = currentDurationText
+
+                            handler.postDelayed(this, 100)
+                        }
+                    }
+                }
+                handler.postDelayed(updateSeekBarTask, 100)
+            }
+            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+                Log.e("MediaPlayer", "Error ($what, $extra)")
+                false
+            }
+            mediaPlayer?.prepareAsync()
+            pathToFile = previousSongFile.absolutePath
+        } else {
+        }
+    }
+
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun updateImageViewState() {
         val nextIcon = resources.getDrawable(R.drawable.iconmonstr_next_thin)
@@ -328,7 +376,6 @@ class PlayMusicActivity : AppCompatActivity() {
             randomIconButton.isClickable = true
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
